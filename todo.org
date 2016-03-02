@@ -1,0 +1,8 @@
+* TODO Make images easily refreshable
+ * ring?
+ * cljs?
+* TODO Tune the generate algorithm
+ * maybe do multiple splits
+ * evolve standard variance through tree
+ * change odds of splitting through tree
+ * static order of splits

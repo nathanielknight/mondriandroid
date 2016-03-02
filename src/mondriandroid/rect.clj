@@ -1,6 +1,7 @@
 (ns mondriandroid.rect
   "Generic constructors for rectangualar objects.")
 
+
 (defn point [a b]
   [a b])
 
@@ -34,11 +35,26 @@
 (defn height [rect]
   (Math/abs (- (-> rect ll-of y-of) (-> rect ur-of y-of))))
 
-(defn TODO [& args]
-  (throw "I haven't been defined yet"))
+(defn split-x
+  "Given a rect `r` and a ratio `rx`, return a seq of two rects with
+  widths `rx` and `(1-rx)` times the original's width."
+  [r rx]
+  (let [dx (* rx (width r))
+        c (+ dx (x-of (ll-of r)))]
+    (list
+     (rect (ll-of r)
+           (point c (y-of (ur-of r))))
+     (rect (point c (y-of (ll-of r)))
+           (ur-of r)))))
 
-(defn split-x [r rx]
-  (TODO))
-
-(defn split-y [r ry]
-  (TODO))
+(defn split-y
+  "Given a rect `r` and a ratio `ry`, return a seq of two rects with
+  heights `ry` and `(1-ry)` times the original's height."  
+  [r ry]
+  (let [dy (* ry (height r))
+        c (+ dy (y-of (ll-of r)))]
+    (list
+     (rect (ll-of r)
+           (point (x-of (ur-of r)) c))
+     (rect (point (x-of (ll-of r)) c)
+           (ur-of r)))))
