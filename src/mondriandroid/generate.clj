@@ -5,8 +5,8 @@
   (:import [org.apache.commons.math3.distribution NormalDistribution]))
 
 
-(def ^:dynamic *split-point* 0.6)
-(def ^:dynamic *split-std* 0.1)
+(defn split-point [] 0.5)
+(defn split-std [] 0.1)
 
 (defn- randomly
   "Given a list of forms, randomly execute one of them."
@@ -19,18 +19,18 @@
   (.sample (NormalDistribution. mean std)))
 
 (defn- split-across [r]
-  (let [rx (normal *split-point* *split-std*)
-        ry (normal *split-point* *split-std*)]
+  (let [rx (normal (split-point) (split-std))
+        ry (normal (split-point) (split-std))]
     (mapcat
      #(split-y % ry)
      (split-x r rx))))
 
 (defn- split-vert [r]
-  (let [ry (normal *split-point* *split-std*)]
+  (let [ry (normal (split-point) (split-std))]
     (split-y r ry)))
 
 (defn- split-horiz [r]
-  (let [rx (normal *split-point* *split-std*)]
+  (let [rx (normal (split-point) (split-std))]
     (split-x r rx)))
 
 (defn- split
