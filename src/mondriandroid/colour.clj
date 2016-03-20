@@ -6,13 +6,22 @@
 (def yellow "gold")
 (def red "red")
 
+
+(defn random-weights [weights]
+  (rand-nth
+   (apply
+    concat
+    (for [[val count] weights]
+            (repeat count val)))))
+
 (defn random-colour
   "Randomly return a color, with a bias towards white."
   []
-  (let [x (rand-int 10)]
-    (cond
-      (< x 7) white
-      (< x 8) blue
-      (< x 9) yellow
-      (< x 10) red
-      :else white)))
+  (random-weights
+   {white 12
+    black 1
+    red 2
+    blue 2
+    yellow 2}
+   )
+)
