@@ -35,6 +35,9 @@
 (defn height [rect]
   (Math/abs (- (-> rect ll-of y-of) (-> rect ur-of y-of))))
 
+(defn aspect-ratio [rect]
+  (/ (width rect) (height rect)))
+
 (defn split-x
   "Given a rect `r` and a ratio `rx`, return a seq of two rects with
   widths `rx` and `(1-rx)` times the original's width."
