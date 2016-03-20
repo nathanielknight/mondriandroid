@@ -24,6 +24,6 @@
     (with-out-str
       (xml/emit-element
        {:tag :svg
-        :attrs {:width "1000" :height "618"
+        :attrs {:width "20cm" :height "12.4cm"
                 :version "1.1" :xmlns "http://www.w3.org/2000/svg"}
         :content (map to-svg-rect rects)})))))
