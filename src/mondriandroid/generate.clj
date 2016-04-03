@@ -81,20 +81,36 @@
   (list {:rect r
          :colour (colour/random-colour)}))
 
+(def generation-schemes
+  (list
+   (fn g [r n]
+     (cond
+       (<= n 4) (mapcat #(g % (+ n 1)) (split r))
+       (<= n 8) ((random-weights
+                  {terminate (+ n 4)
+                   (fn [r] (mapcat #(g % (+ n 1)) (split r))) 12})
+                 r)
+       :else (terminate r)))
+   (fn g [r n]
+     (cond
+       (<= n (rand-int 4)) (mapcat #(g % (+ n 1)) (split r))
+       (<= n (+ 4 (rand-int 4))) ((random-weights
+                   {terminate (/ (* n n) 2)
+                    (fn [r] (mapcat #(g % (+ n 1)) (split r))) 12})
+                 r)
+       :else (terminate r)))
+   (fn g [r n]
+     (cond
+       (<= n 3) (mapcat #(g % (+ n 1)) (split r))
+       :else ((random-weights
+               {terminate n
+                (fn [r] (mapcat #(g % (+ n 1)) (split r))) 8})
+              r)))))
+
 (defn generate
   "Given a rect, generate a Mondrianesque which tiles it."
   ([]
    (generate (rect (point 0 0) (point 20 12.4))))
   ([r]
-   (generate r 0))
-  ([r n]
-   (cond
-     (<= n 2) (mapcat #(generate % (+ n 1)) (split r))     
-     (<= n 8)    ((random-weights
-                   {terminate n
-                    (fn [r] (mapcat #(generate % (+ n 1)) (split r))) 12})
-                  r)
-     :else (terminate r))
-   ))
-
+   ((rand-nth generation-schemes) r 0)))
 
