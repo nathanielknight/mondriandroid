@@ -1,7 +1,0 @@
-* TODO Tune the generate algorithm
- * maybe do multi-splits (n horiz or vert splits instead of 1)
- * evolve standard variance through tree
- * change odds of splitting through tree
- * ordering of splits (in a ring/seq)
- * color distribution/adjacency/size dependence
-* DONE Make images easily refreshable with ring
