@@ -1,6 +1,15 @@
-(ns mondriandroid.core)
+(ns mondriandroid.core
+  (:require [mondriandroid.draw :as draw]
+            [mondriandroid.generate :as generate]
+            [immutant.web :as iweb]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn handler [req]
+  {:status 200
+   :headers {"Content-Type" "image/svg+xml"}
+   :body (draw/render (generate/generate))})
+
+(defn -main
+  ([]
+   (-main 8080))
+  ([port]
+   (iweb/run-dmc handler {:port port})))
