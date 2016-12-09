@@ -1,39 +1,45 @@
 (ns mondriandroid.generate
-  "Functions to generate a Mondrianesque image as a sequence of rects."
-  (:require [mondriandroid.colour :as colour]
-            [mondriandroid.rect :as rect :refer :all])
+  "Generate a Mondrianesque image as a sequence of rects."
+  (:require [mondriandroid.rect :as rect :refer :all]
+            [clojure.spec :as spec])
   (:import [org.apache.commons.math3.distribution NormalDistribution]))
 
+;;;; Utils
 
-
-(defn random-weights [weights]
+(defn random-weights
+  "Given a seqence of pairs of values and weights, randomly select one
+  of the values weighting by the given weights."
+  [weights]
   (rand-nth
    (apply
     concat
     (for [[val count] weights]
-            (repeat count val)))))
+      (repeat count val)))))
 
-(defn split-point [] 0.5)
-(defn split-std [] 0.1)
+;;;; Colours
 
-(defn- randomly
-  "Given a list of forms, randomly execute one of them."
-  [& options]
-  (let [n (rand-int (count options))
-        f (nth options n)]
-    f))
+(def colours
+  {:white "ghostwhite"
+   :black "black"
+   :blue "mediumblue"
+   :yellow "gold"
+   :red "red"})
+
+(defn- random-colour
+  "Randomly generate a colour (with a bias towards white)."
+  []
+  (let [colour-key (random-weights
+                    {:white 12, :black 1, :red 2, :blue 2, :yellow 2})]
+    (get colours colour-key)))
+
+
+
+;;;; Utils for splitting rects
+(defn- split-point [] 0.5)
+(defn- split-std [] 0.1)
 
 (defn- normal [mean std]
   (.sample (NormalDistribution. mean std)))
-
-(defn- split-across
-  "Split a rect into four rects in a cross shape"
-  [r]
-  (let [rx (normal (split-point) (split-std))
-        ry (normal (split-point) (split-std))]
-    (mapcat
-     #(split-y % ry)
-     (split-x r rx))))
 
 (defn- split-vert
   "Split a rect vertically"
@@ -47,7 +53,11 @@
   (let [rx (normal (split-point) (split-std))]
     (split-x r rx)))
 
-(defn- needs-remediation? [r]
+
+;;;; Aspect ratio maintenance
+(defn- needs-remediation?
+  "This rect is too tall or too wide."
+  [r]
   (> (-> r
          aspect-ratio
          java.lang.Math/log
@@ -61,25 +71,24 @@
     (split-horiz rect)
     (split-vert rect)))
 
+
+;;;; Synthesis: splitting
 (defn- split
   "Given a rect, split it horizontally or vertically into a few rects
   which tile the original."
   [r]
   (if (needs-remediation? r)
     (remedial-split r)
-    ((random-weights
-      {
-;       split-across 1
-       split-vert 3
-       split-horiz 3
-       }
-      ) r)))
+    (let [split-fn (random-weights {split-vert 1, split-horiz 1})]
+      (split-fn r))))
 
+
+;;;; Generation
 (defn- terminate
   "Given a rect, return it with an optional colour."
   [r]
   (list {:rect r
-         :colour (colour/random-colour)}))
+         :colour (random-colour)}))
 
 (def generation-schemes
   (list
