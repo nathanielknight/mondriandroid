@@ -14,3 +14,10 @@
 (defn rand-nth!
   [r coll]
   (nth coll (rand-int! r (count coll))))
+
+;; TODO(nknight): verify that the distribution approximately follows mean and std
+(defn normal!
+  [r mean std]
+  (let [kernel (. r nextGaussian)]
+    (+ mean (* std kernel))))
+

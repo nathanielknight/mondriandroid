@@ -36,4 +36,10 @@
                        gen/not-empty)]
                 (seq-eq-with-same-seed s #(mr/rand-nth! % c))))
 
+(defspec normal!-equal-seeds
+  (prop/for-all [s gen/int
+                 mean (gen/double* {:infinite? false :NaN? false})
+                 std (gen/double* {:infinite? false :NaN? false})]
+                (seq-eq-with-same-seed s #(mr/normal! % mean std))))
+
 ;; TODO(nknight): properties of individual functions
