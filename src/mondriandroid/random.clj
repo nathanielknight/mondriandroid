@@ -2,22 +2,23 @@
   "Versions of random-number functions that accept a random number
   generator (so that the seed can be set).")
 
+(def ^:dynamic *prng* (new java.util.Random))
+
 (defn rand!
-  ([r]
-   (. r (nextDouble)))
-  ([r n] (* n (rand! r))))
+  ([]
+   (. *prng* (nextDouble)))
+  ([n] (* n (rand!))))
 
 (defn rand-int!
-  [r n]
-  (int (rand! r n)))
+  [n]
+  (int (rand! n)))
 
 (defn rand-nth!
-  [r coll]
-  (nth coll (rand-int! r (count coll))))
+  [coll]
+  (nth coll (rand-int! (count coll))))
 
 ;; TODO(nknight): verify that the distribution approximately follows mean and std
 (defn normal!
-  [r mean std]
-  (let [kernel (. r nextGaussian)]
+  [mean std]
+  (let [kernel (. *prng* nextGaussian)]
     (+ mean (* std kernel))))
-
