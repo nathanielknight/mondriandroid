@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/data.xml "0.0.8"]
                  [org.immutant/web "2.1.5"]
-                 [org.apache.commons/commons-math3 "3.6"]
+                 [ring/ring-core "1.5.0"]
                  [hiccup "1.0.5"]]
   :profiles {:dev {:dependencies [[ring/ring-devel "1.5.0"]
                                   [org.clojure/test.check "0.9.0"]]

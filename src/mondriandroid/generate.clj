@@ -1,22 +1,21 @@
 (ns mondriandroid.generate
   "Generate a Mondrianesque image as a sequence of rects."
-  (:require [mondriandroid.rect :as rect :refer :all]
-            [clojure.spec :as spec])
-  (:import [org.apache.commons.math3.distribution NormalDistribution]))
+  (:require [clojure.spec :as spec]
+            [mondriandroid.rect :as rect :refer :all]
+            [mondriandroid.random :as mr]))
 
-;;;; Utils
+;; ---------------------------------------------------------------------
+;; Utils
 
 (defn random-weights
   "Given a seqence of pairs of values and weights, randomly select one
   of the values weighting by the given weights."
   [weights]
-  (rand-nth
+  (mr/rand-nth!
    (apply
     concat
     (for [[val count] weights]
       (repeat count val)))))
-
-;;;; Colours
 
 (def colours
   {:white "ghostwhite"
@@ -33,28 +32,28 @@
     (get colours colour-key)))
 
 
+;; ---------------------------------------------------------------------
+;; Splitting rects
 
-;;;; Utils for splitting rects
-(defn- split-point [] 0.5)
+(defn- split-point [] 0.5) ;; functions ∵ might to randomize
 (defn- split-std [] 0.1)
-
-(defn- normal [mean std]
-  (.sample (NormalDistribution. mean std)))
 
 (defn- split-vert
   "Split a rect vertically"
   [r]
-  (let [ry (normal (split-point) (split-std))]
+  (let [ry (mr/normal! (split-point) (split-std))]
     (split-y r ry)))
 
 (defn- split-horiz
   "Split a rect horizontally"
   [r]
-  (let [rx (normal (split-point) (split-std))]
+  (let [rx (mr/normal! (split-point) (split-std))]
     (split-x r rx)))
 
 
-;;;; Aspect ratio maintenance
+;; ---------------------------------------------------------------------
+;; Aspect ratio maintenance
+
 (defn- needs-remediation?
   "This rect is too tall or too wide."
   [r]
@@ -65,14 +64,16 @@
      0.5))
 
 (defn- remedial-split
-  "Split a rect in such a way that its aspect ratio comes back towards 1"
+  "Split a rect in such a way that its aspect ratio comes back towards 1."
   [rect]
   (if (< 0 (java.lang.Math/log (aspect-ratio rect)))
     (split-horiz rect)
     (split-vert rect)))
 
 
-;;;; Synthesis: splitting
+;; ---------------------------------------------------------------------
+;; Synthesis: splitting
+
 (defn- split
   "Given a rect, split it horizontally or vertically into a few rects
   which tile the original."
@@ -83,7 +84,9 @@
       (split-fn r))))
 
 
-;;;; Generation
+;; ---------------------------------------------------------------------
+;; Generation
+
 (defn- terminate
   "Given a rect, return it with an optional colour."
   [r]
@@ -102,8 +105,8 @@
        :else (terminate r)))
    (fn g [r n]
      (cond
-       (<= n (rand-int 4)) (mapcat #(g % (+ n 1)) (split r))
-       (<= n (+ 4 (rand-int 4))) ((random-weights
+       (<= n (mr/rand-int! 4)) (mapcat #(g % (+ n 1)) (split r))
+       (<= n (+ 4 (mr/rand-int! 4))) ((random-weights
                    {terminate (/ (* n n) 2)
                     (fn [r] (mapcat #(g % (+ n 1)) (split r))) 12})
                  r)
@@ -116,10 +119,25 @@
                 (fn [r] (mapcat #(g % (+ n 1)) (split r))) 8})
               r)))))
 
+
+;; ---------------------------------------------------------------------
+;; Generation interface
+
+(defn- bounding-rect [w h]
+  (rect (point 0 0) (point w h)))
+
+(spec/def
+  ::generate-args
+  (spec/keys :opt-un [::width ::height ::seed]))
+
+
 (defn generate
   "Given a rect, generate a Mondrianesque which tiles it."
-  ([]
-   (generate (rect (point 0 0) (point 20 12.4))))
-  ([r]
-   ((rand-nth generation-schemes) r 0)))
-
+  [{:keys [width height seed]}]
+  (let [width (or width 20)
+        height (or height 16)
+        seed (or seed 4)]
+    (binding [mondriandroid.random/*prng* (new java.util.Random seed)]
+      ((mr/rand-nth! generation-schemes)
+       (bounding-rect width height)
+       0))))

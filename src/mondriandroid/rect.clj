@@ -1,6 +1,11 @@
 (ns mondriandroid.rect
-  "Generic constructors for rectangualar objects.")
+  "Generic constructors for rectangualar objects. "
+  (:require [clojure.spec :as spec]))
 
+(spec/def ::point (spec/and vector? #(= (count %) 2)))
+(spec/def ::rect (spec/and
+                  vector?
+                  #(= (count %) 2)))
 
 (defn point [a b]
   [a b])
@@ -10,14 +15,6 @@
 
 (defn y-of [point]
   (second point))
-
-(defn transl-point-x [v1 x]
-  (point (+ (x-of v1) x)
-         (y-of v1)))
-
-(defn transl-point-y [v1 y]
-  (point (x-of v1)
-         (+ (y-of v1) y)))
 
 (defn rect
   [ll ur]

@@ -1,7 +1,7 @@
 (ns mondriandroid.templates
   (:require [hiccup.core :as h]))
 
-;; TODO(nknight): Get the copy checked 
+;; TODO(nknight): Get the copy checked
 
 (def nav
   [:nav
@@ -11,7 +11,7 @@
 
 (def copyright
   [:footer
-   [:p "Copyright 2016 Nathaniel Knight. Licensed under a Createive Commons Attribution Share-Alike License"]])
+   [:p "© 2016 Nathaniel Knight. Shared under a Createive Commons Attribution Share-Alike License"]])
 
 (defn- boilerplate [body]
   [:html
@@ -20,6 +20,11 @@
     nav
     (vec (cons :main (vec body)))
     copyright]])
+
+(defn render [body]
+  (h/html (boilerplate body)))
+
+
 
 (def about
   [[:h1 "About"]
@@ -44,15 +49,20 @@
    [:img {"src" "/generate"}]
    ])
 
+(defn four-oh-four [path]
+  (render
+    [[:h1 "Not a thing"]
+     [:p "As far as I can tell , "
+      [:code (pr-str path)]
+      " isn't a thing."]]))
+
 
 ;; TODO(nknight): Form-based generator to set seed, width, height
 (def generator
-  nil)
+  [[:p "It's not done yet"]])
 
-
-(defn render [body]
-  (h/html (boilerplate body)))
 
 (def templates
   {:index (render index)
-   :about (render about)})
+   :about (render about)
+   :generator (render generator)})
